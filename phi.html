@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>φ = 1.6180339887498948482045 · Visualización Interactiva</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --amber-gold: #ffbe0b;
+            --blaze-orange: #fb5607;
+            --neon-pink: #ff006e;
+            --blue-violet: #8338ec;
+            --azure-blue: #3a86ff;
+            --tropical-mint: #10f9bb;
+            --primary: #3a86ff;
+            --primary-glow: rgba(58, 134, 255, 0.35);
+            --primary-glow-strong: rgba(58, 134, 255, 0.7);
+            --accent: #ff006e;
+            --accent-glow: rgba(255, 0, 110, 0.4);
+            --accent-orange: #fb5607;
+            --accent-gold: #ffbe0b;
+            --accent-mint: #10f9bb;
+            --bg: #0d0a1a;
+            --bg-card: rgba(20, 10, 40, 0.65);
+            --bg-result: rgba(131, 56, 236, 0.12);
+            --white: #fff;
+            --text: #f0e6ff;
+            --text-dim: #b8a0e0;
+            --border: #3a86ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border-radius: 0 !important;
+        }
+
+        body {
+            background: #000;
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+        canvas:active {
+            cursor: grabbing;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 22% 28%, rgba(58, 134, 255, 0.04) 0%, transparent 45%),
+                radial-gradient(ellipse at 78% 65%, rgba(255, 0, 110, 0.03) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 85%, rgba(131, 56, 236, 0.03) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            pointer-events: none;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .top-bar>* {
+            pointer-events: auto;
+        }
+        .nav-back {
+            padding: 10px 16px;
+            border: 1px solid var(--azure-blue);
+            color: var(--azure-blue);
+            text-decoration: none;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+            background: rgba(13, 10, 26, 0.8);
+            backdrop-filter: blur(8px);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-family: 'Inter', sans-serif;
+        }
+        .nav-back:hover {
+            background: rgba(58, 134, 255, 0.18);
+            box-shadow: 0 0 20px var(--primary-glow);
+            border-color: var(--azure-blue);
+            color: var(--white);
+        }
+        .phi-constant-display {
+            font-family: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+            font-size: 0.65rem;
+            color: var(--amber-gold);
+            letter-spacing: 0.03em;
+            background: rgba(13, 10, 26, 0.75);
+            backdrop-filter: blur(8px);
+            padding: 8px 14px;
+            border: 1px solid rgba(255, 190, 11, 0.3);
+            text-align: right;
+            line-height: 1.4;
+        }
+        .phi-constant-display .val {
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            background: rgba(13, 10, 26, 0.9);
+            padding: 18px 28px;
+            border: 1px solid rgba(58, 134, 255, 0.3);
+            backdrop-filter: blur(18px);
+            z-index: 100;
+            flex-wrap: wrap;
+            justify-content: center;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 160px;
+        }
+        .control-label {
+            color: var(--text-dim);
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            font-weight: 600;
+            min-width: 55px;
+            text-align: right;
+        }
+        input[type="range"] {
+            width: 140px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        input[type="range"]:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--azure-blue);
+            border: 2px solid var(--white);
+            cursor: pointer;
+            box-shadow: 0 0 14px var(--primary-glow-strong);
+            transition: all 0.2s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 22px var(--primary-glow-strong);
+        }
+        #angleSlider::-webkit-slider-thumb {
+            background: var(--accent);
+            box-shadow: 0 0 14px var(--accent-glow);
+        }
+        #sizeSlider::-webkit-slider-thumb {
+            background: var(--blue-violet);
+            box-shadow: 0 0 14px rgba(131, 56, 236, 0.7);
+        }
+        .value-display {
+            font-family: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--white);
+            min-width: 58px;
+            text-align: right;
+            letter-spacing: 0.02em;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3px 7px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.15s;
+        }
+        .value-display.highlight {
+            color: var(--amber-gold);
+            border-color: rgba(255, 190, 11, 0.5);
+            box-shadow: 0 0 10px rgba(255, 190, 11, 0.3);
+        }
+
+        .ctrl-btn {
+            padding: 9px 14px;
+            border: 1px solid;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            color: var(--white);
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+        }
+        .btn-golden {
+            border-color: var(--amber-gold);
+            color: var(--amber-gold);
+        }
+        .btn-golden:hover {
+            background: rgba(255, 190, 11, 0.15);
+            box-shadow: 0 0 18px rgba(255, 190, 11, 0.35);
+        }
+        .btn-golden.active-flash {
+            background: rgba(255, 190, 11, 0.35);
+            box-shadow: 0 0 30px rgba(255, 190, 11, 0.7);
+            transform: scale(1.08);
+        }
+        .btn-color {
+            border-color: var(--tropical-mint);
+            color: var(--tropical-mint);
+        }
+        .btn-color:hover {
+            background: rgba(16, 249, 187, 0.12);
+            box-shadow: 0 0 16px rgba(16, 249, 187, 0.3);
+        }
+        .btn-reset {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .btn-reset:hover {
+            background: rgba(255, 0, 110, 0.12);
+            box-shadow: 0 0 16px var(--accent-glow);
+        }
+        .btn-reset.active-flash {
+            background: rgba(255, 0, 110, 0.3);
+            box-shadow: 0 0 28px var(--accent-glow);
+            transform: scale(1.08);
+        }
+
+        .perf-warning {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--blaze-orange);
+            font-size: 0.7rem;
+            letter-spacing: 0.06em;
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 10px 18px;
+            border: 1px solid var(--blaze-orange);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+            z-index: 90;
+        }
+        .perf-warning.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                gap: 12px;
+                padding: 12px 16px;
+                bottom: 10px;
+                width: 95%;
+            }
+            .control-group {
+                min-width: auto;
+                flex: 1 1 100%;
+                justify-content: center;
+            }
+            input[type="range"] {
+                width: 100px;
+            }
+            .top-bar {
+                top: 8px;
+                left: 8px;
+                right: 8px;
+            }
+            .phi-constant-display {
+                font-size: 0.55rem;
+                padding: 6px 10px;
+            }
+            .nav-back {
+                font-size: 0.6rem;
+                padding: 8px 12px;
+            }
+            .ctrl-btn {
+                padding: 7px 10px;
+                font-size: 0.58rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .controls {
+                gap: 8px;
+                padding: 10px 10px;
+                bottom: 6px;
+            }
+            input[type="range"] {
+                width: 70px;
+            }
+            .value-display {
+                font-size: 0.65rem;
+                min-width: 44px;
+            }
+            .control-label {
+                font-size: 0.55rem;
+                min-width: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+
+    <div class="container">
+        <canvas id="sunflowerCanvas"></canvas>
+    </div>
+
+    <div class="top-bar">
+        <a href="index.html" class="nav-back">
+            <i class="fas fa-arrow-left"></i> Guía Phi
+        </a>
+        <div class="phi-constant-display">
+            φ = <span class="val">1.6180339887498948482045</span><br>
+            Ángulo Áureo ≈ <span class="val" id="goldenAngleDisplay">137.50776405003785°</span>
+        </div>
+    </div>
+
+    <div class="perf-warning" id="perfWarning">⚠ Alto consumo GPU · Reduce el número de nodos</div>
+
+    <div class="controls" id="controlPanel">
+        <div class="control-group">
+            <span class="control-label">Ángulo</span>
+            <input type="range" id="angleSlider" min="1" max="180" step="0.0001" value="137.5078">
+            <span class="value-display" id="angleValue">137.5078°</span>
+            <button class="ctrl-btn btn-golden" id="goldenAngleBtn" title="Establecer ángulo áureo exacto">φ°</button>
+        </div>
+        <div class="control-group">
+            <span class="control-label">Nodos</span>
+            <input type="range" id="seedsSlider" min="1" max="30000" step="1" value="500">
+            <span class="value-display" id="seedsValue">500</span>
+        </div>
+        <div class="control-group">
+            <span class="control-label">Tamaño</span>
+            <input type="range" id="sizeSlider" min="0.2" max="10" step="0.1" value="2.5">
+            <span class="value-display" id="sizeValue">2.5</span>
+        </div>
+        <button class="ctrl-btn btn-color" id="colorToggle" title="Alternar modo de color">Color</button>
+        <button class="ctrl-btn btn-reset" id="resetBtn" title="Restablecer valores por defecto">↺ Reset</button>
+    </div>
+
+    <script>
+        (function() {
+            const PHI = 1.6180339887498948482045;
+            const GOLDEN_ANGLE_EXACT = 360 / (PHI * PHI);
+
+            console.log('%c🔬 φ = ' + PHI.toFixed(22), 'color:#ffbe0b;font-size:18px;font-weight:bold;');
+            console.log('%c📐 Ángulo Áureo = ' + GOLDEN_ANGLE_EXACT.toFixed(20) + '°', 'color:#3a86ff;font-weight:bold;');
+            console.log('%c🌻 Visualización de Girasol de Phi — Inicializada', 'color:#10f9bb;font-weight:bold;');
+
+            const DEFAULT_CONFIG = {
+                angle: GOLDEN_ANGLE_EXACT,
+                seeds: 500,
+                size: 2.5,
+                scale: 7,
+                offsetX: 0,
+                offsetY: 0,
+                colorMode: true
+            };
+
+            const MIN_SCALE = 0.5;
+            const MAX_SCALE = 10;
+            const PERFORMANCE_THRESHOLD = 5000;
+
+            const canvas = document.getElementById('sunflowerCanvas');
+            const ctx = canvas.getContext('2d');
+            const angleSlider = document.getElementById('angleSlider');
+            const seedsSlider = document.getElementById('seedsSlider');
+            const sizeSlider = document.getElementById('sizeSlider');
+            const angleValue = document.getElementById('angleValue');
+            const seedsValue = document.getElementById('seedsValue');
+            const sizeValue = document.getElementById('sizeValue');
+            const goldenAngleBtn = document.getElementById('goldenAngleBtn');
+            const colorToggle = document.getElementById('colorToggle');
+            const resetBtn = document.getElementById('resetBtn');
+            const perfWarning = document.getElementById('perfWarning');
+            const goldenAngleDisplay = document.getElementById('goldenAngleDisplay');
+
+            let state = {
+                angle: GOLDEN_ANGLE_EXACT,
+                seedCount: DEFAULT_CONFIG.seeds,
+                sizeMultiplier: DEFAULT_CONFIG.size,
+                colorMode: true,
+                scale: DEFAULT_CONFIG.scale,
+                offsetX: 0,
+                offsetY: 0,
+                isDragging: false,
+                lastX: 0,
+                lastY: 0,
+                animationId: null,
+                transitionProgress: 1,
+                targetAngle: GOLDEN_ANGLE_EXACT,
+                prevAngle: GOLDEN_ANGLE_EXACT,
+                transitionStartTime: 0,
+                transitionDuration: 600,
+            };
+
+            let pinchStartDistance = 0;
+            let pinchStartScale = 1;
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                draw();
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            function getSeedColor(i, radius, theta, maxVisibleRadius) {
+                if (!state.colorMode) {
+                    const radialFactor = Math.min(1, radius / (maxVisibleRadius * 0.9));
+                    const smoothFactor = 1 - Math.pow(radialFactor, 1.5);
+                    const spiralVar = 0.95 + 0.1 * Math.sin(theta * 3);
+                    let opacity = 0.12 + smoothFactor * 0.78;
+                    opacity *= spiralVar;
+                    opacity = Math.max(0.04, Math.min(0.92, opacity));
+                    return `rgba(255,255,255,${opacity})`;
+                }
+
+                const hue = (theta * 180 / Math.PI * 2 + i * 0.016180339887498948) % 360;
+                const saturation = 70 + Math.sin(i * 0.018) * 20;
+                const maxRadius = Math.sqrt(state.seedCount) * 2;
+                const lightness = 38 + (1 - Math.min(1, radius / maxRadius)) * 38;
+                return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+            }
+
+            function draw() {
+                const w = canvas.width;
+                const h = canvas.height;
+                const centerX = w / 2 + state.offsetX;
+                const centerY = h / 2 + state.offsetY;
+                const maxRadius = Math.sqrt(state.seedCount) * 2 * state.scale;
+
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, w, h);
+
+                const glowGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY,
+                    Math.min(maxRadius * 0.3, Math.max(w, h) * 0.5));
+                glowGrad.addColorStop(0, 'rgba(58,134,255,0.04)');
+                glowGrad.addColorStop(0.5, 'rgba(131,56,236,0.02)');
+                glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = glowGrad;
+                ctx.fillRect(0, 0, w, h);
+
+                const visibleRadius = Math.min(maxRadius, Math.max(w, h) * 0.85);
+                const batchSize = Math.min(600, Math.max(120, Math.floor(state.seedCount / 8)));
+
+                let currentAngle = state.angle;
+                if (state.transitionProgress < 1) {
+                    const elapsed = performance.now() - state.transitionStartTime;
+                    const rawProgress = Math.min(1, elapsed / state.transitionDuration);
+                    const eased = easeInOutCubic(rawProgress);
+                    state.transitionProgress = eased;
+                    currentAngle = state.prevAngle + (state.targetAngle - state.prevAngle) * eased;
+                    if (eased >= 1) {
+                        currentAngle = state.targetAngle;
+                        state.angle = state.targetAngle;
+                        state.transitionProgress = 1;
+                        angleSlider.value = state.targetAngle.toFixed(4);
+                        angleValue.textContent = state.targetAngle.toFixed(4) + '°';
+                    }
+                }
+
+                for (let batchStart = 0; batchStart < state.seedCount; batchStart += batchSize) {
+                    const batchEnd = Math.min(batchStart + batchSize, state.seedCount);
+                    for (let i = batchStart; i < batchEnd; i++) {
+                        const radius = Math.sqrt(i) * 2 * state.scale;
+                        if (radius > visibleRadius) continue;
+                        const theta = i * (currentAngle * Math.PI / 180);
+                        const x = centerX + radius * Math.cos(theta);
+                        const y = centerY + radius * Math.sin(theta);
+                        if (x < -60 || x > w + 60 || y < -60 || y > h + 60) continue;
+
+                        const baseSize = Math.max(0.08, (1 - Math.min(1, radius / visibleRadius)) * 3.5);
+                        const size = baseSize * state.sizeMultiplier;
+
+                        ctx.fillStyle = getSeedColor(i, radius, theta, visibleRadius);
+                        ctx.beginPath();
+                        ctx.arc(x, y, Math.max(0.15, size), 0, Math.PI * 2);
+                        ctx.fill();
+
+                        if (state.colorMode && size > 0.7 && state.seedCount < 8000) {
+                            ctx.fillStyle = 'rgba(255,255,255,0.12)';
+                            ctx.beginPath();
+                            ctx.arc(x - size * 0.22, y - size * 0.22, size * 0.35, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                }
+
+                if (state.scale <= MIN_SCALE * 1.6) {
+                    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            function easeInOutCubic(t) {
+                return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            }
+
+            function animateLoop() {
+                if (state.transitionProgress < 1) {
+                    draw();
+                }
+                state.animationId = requestAnimationFrame(animateLoop);
+            }
+
+            function smoothTransitionToAngle(targetAngle, duration = 600) {
+                state.prevAngle = state.angle;
+                state.targetAngle = targetAngle;
+                state.transitionProgress = 0;
+                state.transitionStartTime = performance.now();
+                state.transitionDuration = duration;
+                draw();
+            }
+
+            function updateAngle(animate = false) {
+                const newAngle = parseFloat(angleSlider.value);
+                angleValue.textContent = newAngle.toFixed(4) + '°';
+                if (animate && Math.abs(newAngle - state.angle) > 0.001) {
+                    smoothTransitionToAngle(newAngle);
+                } else {
+                    state.angle = newAngle;
+                    state.transitionProgress = 1;
+                    draw();
+                }
+                angleValue.classList.add('highlight');
+                setTimeout(() => angleValue.classList.remove('highlight'), 180);
+            }
+
+            function updateSeeds() {
+                state.seedCount = parseInt(seedsSlider.value);
+                seedsValue.textContent = state.seedCount;
+                updatePerfWarning();
+                draw();
+                seedsValue.classList.add('highlight');
+                setTimeout(() => seedsValue.classList.remove('highlight'), 180);
+            }
+
+            function updateSize() {
+                state.sizeMultiplier = parseFloat(sizeSlider.value);
+                sizeValue.textContent = state.sizeMultiplier.toFixed(1);
+                draw();
+                sizeValue.classList.add('highlight');
+                setTimeout(() => sizeValue.classList.remove('highlight'), 180);
+            }
+
+            function updatePerfWarning() {
+                if (state.seedCount >= PERFORMANCE_THRESHOLD) {
+                    perfWarning.classList.add('show');
+                } else {
+                    perfWarning.classList.remove('show');
+                }
+            }
+
+            function toggleColorMode() {
+                state.colorMode = !state.colorMode;
+                colorToggle.textContent = state.colorMode ? 'Color' : 'B/N';
+                colorToggle.style.borderColor = state.colorMode ? 'var(--tropical-mint)' : 'var(--text-dim)';
+                colorToggle.style.color = state.colorMode ? 'var(--tropical-mint)' : 'var(--text-dim)';
+                draw();
+            }
+
+            function setGoldenAngle() {
+                angleSlider.value = GOLDEN_ANGLE_EXACT.toFixed(4);
+                angleValue.textContent = GOLDEN_ANGLE_EXACT.toFixed(4) + '°';
+                smoothTransitionToAngle(GOLDEN_ANGLE_EXACT, 700);
+
+                goldenAngleBtn.classList.add('active-flash');
+                goldenAngleBtn.textContent = '✓';
+                setTimeout(() => {
+                    goldenAngleBtn.classList.remove('active-flash');
+                    goldenAngleBtn.textContent = 'φ°';
+                }, 700);
+
+                angleValue.classList.add('highlight');
+                setTimeout(() => angleValue.classList.remove('highlight'), 700);
+
+                console.log('%c⭐ Ángulo Áureo Exacto: ' + GOLDEN_ANGLE_EXACT.toFixed(20) + '°',
+                    'color:#ffbe0b;font-weight:bold;');
+            }
+
+            function resetToDefault() {
+                state.offsetX = DEFAULT_CONFIG.offsetX;
+                state.offsetY = DEFAULT_CONFIG.offsetY;
+                state.scale = DEFAULT_CONFIG.scale;
+                state.colorMode = DEFAULT_CONFIG.colorMode;
+                colorToggle.textContent = 'Color';
+                colorToggle.style.borderColor = 'var(--tropical-mint)';
+                colorToggle.style.color = 'var(--tropical-mint)';
+
+                angleSlider.value = DEFAULT_CONFIG.angle.toFixed(4);
+                seedsSlider.value = DEFAULT_CONFIG.seeds;
+                sizeSlider.value = DEFAULT_CONFIG.size;
+                state.seedCount = DEFAULT_CONFIG.seeds;
+                state.sizeMultiplier = DEFAULT_CONFIG.size;
+                seedsValue.textContent = DEFAULT_CONFIG.seeds;
+                sizeValue.textContent = DEFAULT_CONFIG.size.toFixed(1);
+                angleValue.textContent = DEFAULT_CONFIG.angle.toFixed(4) + '°';
+                updatePerfWarning();
+
+                smoothTransitionToAngle(DEFAULT_CONFIG.angle, 700);
+
+                resetBtn.classList.add('active-flash');
+                setTimeout(() => resetBtn.classList.remove('active-flash'), 700);
+
+                console.log('%c🔄 Configuración restaurada a valores por defecto', 'color:#ff006e;font-weight:bold;');
+            }
+
+            function startDrag(e) {
+                state.isDragging = true;
+                const cx = e.touches ? e.touches[0].clientX : e.clientX;
+                const cy = e.touches ? e.touches[0].clientY : e.clientY;
+                state.lastX = cx;
+                state.lastY = cy;
+                canvas.style.cursor = 'grabbing';
+            }
+
+            function drag(e) {
+                if (!state.isDragging) return;
+                e.preventDefault();
+                const cx = e.touches ? e.touches[0].clientX : e.clientX;
+                const cy = e.touches ? e.touches[0].clientY : e.clientY;
+                state.offsetX += cx - state.lastX;
+                state.offsetY += cy - state.lastY;
+                state.lastX = cx;
+                state.lastY = cy;
+                draw();
+            }
+
+            function endDrag() {
+                state.isDragging = false;
+                canvas.style.cursor = 'grab';
+            }
+
+            function handleZoom(e) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? 0.92 : 1.08;
+                state.scale *= delta;
+                state.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, state.scale));
+                draw();
+            }
+
+            function handlePinchStart(e) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                pinchStartDistance = Math.sqrt(dx * dx + dy * dy);
+                pinchStartScale = state.scale;
+            }
+
+            function handlePinch(e) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (pinchStartDistance > 0) {
+                    state.scale = pinchStartScale * (dist / pinchStartDistance);
+                    state.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, state.scale));
+                    draw();
+                }
+            }
+
+            angleSlider.addEventListener('input', () => updateAngle(false));
+            angleSlider.addEventListener('change', () => updateAngle(true));
+            seedsSlider.addEventListener('input', updateSeeds);
+            sizeSlider.addEventListener('input', updateSize);
+
+            goldenAngleBtn.addEventListener('click', setGoldenAngle);
+            colorToggle.addEventListener('click', toggleColorMode);
+            resetBtn.addEventListener('click', resetToDefault);
+
+            canvas.addEventListener('mousedown', startDrag);
+            canvas.addEventListener('mousemove', drag);
+            canvas.addEventListener('mouseup', endDrag);
+            canvas.addEventListener('mouseleave', endDrag);
+            canvas.addEventListener('wheel', handleZoom, { passive: false });
+
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (e.touches.length === 1) startDrag(e);
+                else if (e.touches.length === 2) handlePinchStart(e);
+            }, { passive: false });
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (e.touches.length === 1) drag(e);
+                else if (e.touches.length === 2) handlePinch(e);
+            }, { passive: false });
+            canvas.addEventListener('touchend', endDrag);
+
+            document.addEventListener('keydown', (e) => {
+                const activeTag = document.activeElement.tagName;
+                if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT') return;
+
+                switch (e.key.toLowerCase()) {
+                    case 'g':
+                        e.preventDefault();
+                        setGoldenAngle();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        resetToDefault();
+                        break;
+                    case 'c':
+                        e.preventDefault();
+                        toggleColorMode();
+                        break;
+                    case 'arrowleft':
+                    case 'arrowright':
+                        e.preventDefault();
+                        const step = 0.0001;
+                        let delta = e.key === 'ArrowLeft' ? -step : step;
+                        if (e.shiftKey) delta *= 10;
+                        if (e.ctrlKey || e.metaKey) delta *= 100;
+                        let newVal = parseFloat(angleSlider.value) + delta;
+                        newVal = Math.max(1, Math.min(180, parseFloat(newVal.toFixed(4))));
+                        angleSlider.value = newVal;
+                        updateAngle(true);
+                        break;
+                    case 'arrowup':
+                    case 'arrowdown':
+                        e.preventDefault();
+                        const sStep = e.key === 'ArrowUp' ? 1 : -1;
+                        let sMult = 1;
+                        if (e.shiftKey) sMult = 10;
+                        if (e.ctrlKey || e.metaKey) sMult = 100;
+                        let newSeeds = parseInt(seedsSlider.value) + sStep * sMult;
+                        newSeeds = Math.max(1, Math.min(30000, newSeeds));
+                        seedsSlider.value = newSeeds;
+                        updateSeeds();
+                        break;
+                }
+            });
+
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                slider.addEventListener('keydown', (e) => {
+                    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown',
+                            'Home', 'End'
+                        ].includes(e.key)) {
+                        e.preventDefault();
+                        const step = parseFloat(slider.step) || 0.0001;
+                        const min = parseFloat(slider.min) || 0;
+                        const max = parseFloat(slider.max) || 100;
+                        let cur = parseFloat(slider.value);
+                        let inc = 0;
+                        switch (e.key) {
+                            case 'ArrowLeft':
+                            case 'ArrowDown':
+                                inc = -step;
+                                break;
+                            case 'ArrowRight':
+                            case 'ArrowUp':
+                                inc = step;
+                                break;
+                            case 'PageDown':
+                                inc = -step * 10;
+                                break;
+                            case 'PageUp':
+                                inc = step * 10;
+                                break;
+                            case 'Home':
+                                inc = min - cur;
+                                break;
+                            case 'End':
+                                inc = max - cur;
+                                break;
+                        }
+                        if (e.shiftKey) inc *= 10;
+                        if (e.ctrlKey || e.metaKey) inc *= 100;
+                        let nv = cur + inc;
+                        nv = Math.max(min, Math.min(max, nv));
+                        const dec = Math.max(0, Math.ceil(-Math.log10(step)));
+                        nv = parseFloat(nv.toFixed(dec));
+                        slider.value = nv;
+                        slider.dispatchEvent(new Event('input', { bubbles: true }));
+                        slider.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+            });
+
+            goldenAngleDisplay.textContent = GOLDEN_ANGLE_EXACT.toFixed(14) + '°';
+            angleSlider.value = GOLDEN_ANGLE_EXACT.toFixed(4);
+            angleValue.textContent = GOLDEN_ANGLE_EXACT.toFixed(4) + '°';
+            seedsValue.textContent = state.seedCount;
+            sizeValue.textContent = state.sizeMultiplier.toFixed(1);
+            updatePerfWarning();
+            draw();
+            state.animationId = requestAnimationFrame(animateLoop);
+
+            console.log('%c✅ Visualización lista · Usa G=Ángulo Áureo, R=Reset, C=Color, Flechas=Navegar',
+                'color:#10f9bb;');
+        })();
+    </script>
+</body>
+</html>

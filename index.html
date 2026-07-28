@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>φ = 1.6180339887498948482045 — Símbolo Phi · Guía Matemática</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --amber-gold: #ffbe0b;
+            --blaze-orange: #fb5607;
+            --neon-pink: #ff006e;
+            --blue-violet: #8338ec;
+            --azure-blue: #3a86ff;
+            --tropical-mint: #10f9bb;
+            --primary: #3a86ff;
+            --primary-glow: rgba(58, 134, 255, 0.35);
+            --primary-glow-strong: rgba(58, 134, 255, 0.7);
+            --accent: #ff006e;
+            --accent-glow: rgba(255, 0, 110, 0.4);
+            --accent-orange: #fb5607;
+            --accent-gold: #ffbe0b;
+            --accent-mint: #10f9bb;
+            --bg: #0d0a1a;
+            --bg-card: rgba(20, 10, 40, 0.65);
+            --bg-result: rgba(131, 56, 236, 0.12);
+            --white: #fff;
+            --text: #f0e6ff;
+            --text-dim: #b8a0e0;
+            --border: #3a86ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border-radius: 0 !important;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            background-image:
+                radial-gradient(ellipse at 25% 15%, rgba(58, 134, 255, 0.05) 0%, transparent 55%),
+                radial-gradient(ellipse at 70% 55%, rgba(255, 0, 110, 0.04) 0%, transparent 55%),
+                radial-gradient(ellipse at 45% 85%, rgba(131, 56, 236, 0.04) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 22px;
+            background: var(--bg-card);
+            border: 1px solid rgba(58, 134, 255, 0.3);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .nav-brand {
+            font-family: 'Source Serif Pro', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: 0.03em;
+        }
+        .nav-brand span {
+            color: var(--azure-blue);
+            font-size: 1.6rem;
+        }
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .nav-link {
+            padding: 10px 18px;
+            border: 1px solid var(--border);
+            color: var(--azure-blue);
+            text-decoration: none;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+            background: transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-family: 'Inter', sans-serif;
+        }
+        .nav-link:hover {
+            background: rgba(58, 134, 255, 0.1);
+            box-shadow: 0 0 22px var(--primary-glow);
+            border-color: var(--azure-blue);
+            color: var(--white);
+        }
+        .nav-link.accent {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .nav-link.accent:hover {
+            background: rgba(255, 0, 110, 0.1);
+            box-shadow: 0 0 22px var(--accent-glow);
+            border-color: var(--accent);
+            color: var(--white);
+        }
+
+        .header {
+            text-align: center;
+            padding: 32px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    var(--azure-blue) 10%,
+                    var(--blue-violet) 30%,
+                    var(--accent) 50%,
+                    var(--accent-orange) 70%,
+                    var(--amber-gold) 90%,
+                    transparent);
+            opacity: 0.7;
+        }
+        .header h1 {
+            font-family: 'Source Serif Pro', serif;
+            font-size: clamp(2rem, 3.5vw, 2.8rem);
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--white);
+            margin-bottom: 6px;
+        }
+        .header h1 .phi-highlight {
+            background: linear-gradient(to right, var(--azure-blue), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.2em;
+        }
+        .header .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        .header .phi-precision {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 7px 16px;
+            border: 1px solid var(--accent-gold);
+            color: var(--amber-gold);
+            font-family: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.04em;
+            font-weight: 600;
+            background: rgba(255, 190, 11, 0.06);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid rgba(58, 134, 255, 0.25);
+            padding: 24px;
+        }
+        .card-header {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            margin-bottom: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-header::before {
+            content: '';
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            background: var(--azure-blue);
+            box-shadow: 0 0 8px var(--primary-glow-strong);
+        }
+
+        .symbol-showcase {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .symbol-display {
+            font-family: 'Source Serif Pro', 'Times New Roman', serif;
+            font-size: clamp(5rem, 10vw, 9rem);
+            color: var(--white);
+            display: inline-block;
+            text-shadow: 0 0 40px var(--primary-glow-strong), 0 0 80px var(--primary-glow);
+            animation: phiPulse 4s ease-in-out infinite;
+            cursor: default;
+            user-select: all;
+            transition: transform 0.3s ease;
+        }
+        .symbol-display:hover {
+            transform: scale(1.06);
+            text-shadow: 0 0 60px rgba(58, 134, 255, 0.9), 0 0 120px rgba(58, 134, 255, 0.5);
+        }
+        @keyframes phiPulse {
+            0%, 100% {
+                text-shadow: 0 0 30px var(--primary-glow-strong), 0 0 60px var(--primary-glow);
+            }
+            50% {
+                text-shadow: 0 0 55px rgba(58, 134, 255, 0.9), 0 0 110px rgba(58, 134, 255, 0.6);
+            }
+        }
+        .symbol-sub {
+            font-family: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+
+        .copy-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .copy-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            min-width: 170px;
+            transition: all 0.25s ease;
+        }
+        .copy-box:hover {
+            border-color: var(--azure-blue);
+            box-shadow: 0 0 16px rgba(58, 134, 255, 0.2);
+        }
+        .copy-box .symbol-text {
+            font-family: 'Source Serif Pro', 'Times New Roman', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+            flex-grow: 1;
+            letter-spacing: 0.02em;
+        }
+        .copy-btn {
+            padding: 7px 14px;
+            border: 1px solid var(--azure-blue);
+            background: transparent;
+            color: var(--azure-blue);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.7rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        .copy-btn:hover {
+            background: rgba(58, 134, 255, 0.15);
+            box-shadow: 0 0 14px var(--primary-glow);
+        }
+        .copy-btn.copied {
+            background: var(--tropical-mint);
+            color: #000;
+            border-color: var(--tropical-mint);
+            box-shadow: 0 0 18px rgba(16, 249, 187, 0.5);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        .info-card:hover {
+            border-color: var(--azure-blue);
+            box-shadow: 0 0 20px rgba(58, 134, 255, 0.15);
+            transform: translateY(-3px);
+        }
+        .info-card h3 {
+            color: var(--azure-blue);
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .info-card h3 i {
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+        .info-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .info-card ul li {
+            padding: 4px 0 4px 16px;
+            position: relative;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+        .info-card ul li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--azure-blue);
+            font-size: 0.55rem;
+            top: 6px;
+        }
+        .info-card p {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+        .info-card strong {
+            color: var(--white);
+            font-weight: 600;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 14px;
+            font-family: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+            font-size: 0.7rem;
+            line-height: 1.7;
+            color: var(--text);
+            border-left: 3px solid var(--azure-blue);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .code-block .keyword {
+            color: var(--accent);
+        }
+        .code-block .string {
+            color: var(--tropical-mint);
+        }
+        .code-block .comment {
+            color: #6a6a8a;
+        }
+
+        .viz-box {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 24px;
+            text-align: center;
+        }
+        .phi-rectangle-container {
+            position: relative;
+            width: 100%;
+            max-width: 460px;
+            height: 280px;
+            margin: 20px auto;
+            border: 2px solid var(--azure-blue);
+            background: rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .phi-square-inner {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 173.08px;
+            height: 100%;
+            background: rgba(58, 134, 255, 0.18);
+            border-right: 2px dashed var(--azure-blue);
+            transition: background 0.4s ease;
+        }
+        .phi-rectangle-container:hover .phi-square-inner {
+            background: rgba(58, 134, 255, 0.3);
+        }
+        .rect-label {
+            position: absolute;
+            font-family: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--white);
+            background: rgba(0, 0, 0, 0.65);
+            padding: 3px 8px;
+            letter-spacing: 0.04em;
+        }
+        .label-a {
+            top: 8px;
+            left: 70px;
+        }
+        .label-b {
+            top: 8px;
+            right: 160px;
+        }
+        .phi-formula-display {
+            font-family: 'Source Serif Pro', 'Times New Roman', serif;
+            font-size: 1.4rem;
+            text-align: center;
+            color: var(--amber-gold);
+            padding: 14px;
+            background: rgba(255, 190, 11, 0.06);
+            border: 1px solid rgba(255, 190, 11, 0.2);
+            margin-top: 16px;
+            letter-spacing: 0.03em;
+        }
+
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+            justify-content: center;
+        }
+        .btn {
+            padding: 14px 24px;
+            border: 1px solid;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            color: var(--white);
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-accent {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .btn-accent:hover {
+            background: rgba(255, 0, 110, 0.12);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.2);
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            letter-spacing: 0.04em;
+        }
+        .footer a {
+            color: var(--azure-blue);
+            text-decoration: none;
+        }
+        .footer a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+                gap: 14px;
+            }
+            .card {
+                padding: 16px;
+            }
+            .header {
+                padding: 22px 14px;
+            }
+            .symbol-display {
+                font-size: 4.5rem;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .copy-row {
+                flex-direction: column;
+                align-items: center;
+            }
+            .copy-box {
+                width: 100%;
+                max-width: 280px;
+            }
+            .top-nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .phi-rectangle-container {
+                height: 200px;
+            }
+            .phi-square-inner {
+                width: 123.6px;
+            }
+            .label-b {
+                right: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="top-nav">
+            <div class="nav-brand"><span>φ</span> Phi Guide</div>
+            <div class="nav-links">
+                <a href="phi.html" class="nav-link accent">
+                    <i class="fas fa-sun"></i> Visualización Interactiva
+                </a>
+            </div>
+        </nav>
+
+        <header class="header">
+            <h1>Símbolo <span class="phi-highlight">φ</span> (Phi)</h1>
+            <p class="subtitle">La Proporción Áurea · Constante Matemática Fundamental</p>
+            <span class="phi-precision">φ = 1.6180339887498948482045…</span>
+        </header>
+
+        <section class="card">
+            <div class="card-header">Símbolo · Copiar al Portapapeles</div>
+            <div class="symbol-showcase">
+                <div class="symbol-display" id="mainPhiSymbol" title="φ — Proporción Áurea">φ</div>
+                <p class="symbol-sub">φ = (1 + √5) / 2 ≈ 1.6180339887498948482045</p>
+            </div>
+            <div class="copy-row">
+                <div class="copy-box">
+                    <span class="symbol-text" id="phiLower">φ</span>
+                    <button class="copy-btn" data-target="phiLower">
+                        <i class="far fa-copy"></i> Copiar
+                    </button>
+                </div>
+                <div class="copy-box">
+                    <span class="symbol-text" id="phiVariant">ϕ</span>
+                    <button class="copy-btn" data-target="phiVariant">
+                        <i class="far fa-copy"></i> Copiar
+                    </button>
+                </div>
+                <div class="copy-box">
+                    <span class="symbol-text" id="phiUpper">Φ</span>
+                    <button class="copy-btn" data-target="phiUpper">
+                        <i class="far fa-copy"></i> Copiar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <h3><i class="fas fa-calculator"></i> Definición Matemática</h3>
+                <p>Phi (<strong>φ</strong>) es la <strong>proporción áurea</strong>, un número irracional que satisface:</p>
+                <div class="code-block">
+<span class="comment">// Ecuación definitoria</span>
+φ² = φ + 1
+φ = (<span class="keyword">1</span> + √<span class="keyword">5</span>) / <span class="keyword">2</span>
+φ ≈ <span class="string">1.6180339887498948482045</span>…
+                </div>
+                <p style="margin-top:10px;">Aparece en la <strong>sucesión de Fibonacci</strong>: el cociente de términos consecutivos converge a φ.</p>
+            </div>
+            <div class="info-card">
+                <h3><i class="fas fa-code"></i> Representación Digital</h3>
+                <p><strong>Entidades HTML:</strong></p>
+                <div class="code-block">
+<span class="comment">&lt;!-- Phi minúscula --&gt;</span>
+&amp;phi;   → φ
+&amp;varphi; → ϕ
+<span class="comment">&lt;!-- Phi mayúscula --&gt;</span>
+&amp;Phi;   → Φ
+                </div>
+                <p style="margin-top:10px;"><strong>Unicode:</strong> U+03C6 (φ), U+03D5 (ϕ), U+03A6 (Φ)</p>
+                <p><strong>LaTeX:</strong> <code>\varphi</code> → φ, <code>\Phi</code> → Φ</p>
+            </div>
+            <div class="info-card">
+                <h3><i class="fas fa-keyboard"></i> Atajos de Teclado</h3>
+                <p><strong>Windows:</strong></p>
+                <ul>
+                    <li>ALT + 966 (teclado numérico) → φ</li>
+                    <li>ALT + 934 → Φ</li>
+                </ul>
+                <p><strong>macOS:</strong></p>
+                <ul>
+                    <li>⌥ Option + F → φ</li>
+                    <li>⌥ Option + Shift + F → Φ</li>
+                </ul>
+                <p><strong>Linux:</strong></p>
+                <ul>
+                    <li>Ctrl + Shift + U, 03C6, Enter → φ</li>
+                </ul>
+            </div>
+        </div>
+
+        <section class="card">
+            <div class="card-header">Visualización · Rectángulo Áureo</div>
+            <div class="viz-box">
+                <p style="color:var(--text-dim);font-size:0.8rem;">φ = (a + b) / a = a / b ≈ 1.6180339887498948482045</p>
+                <div class="phi-rectangle-container">
+                    <div class="phi-square-inner"></div>
+                    <span class="rect-label label-a">a</span>
+                    <span class="rect-label label-b">b</span>
+                </div>
+                <div class="phi-formula-display">
+                    φ = (a + b) / a = a / b ≈ 1.6180339887498948482045
+                </div>
+            </div>
+        </section>
+
+        <section class="card" style="text-align:center;">
+            <div class="card-header">Explorar el Patrón del Girasol</div>
+            <p style="color:var(--text-dim);margin-bottom:16px;">Observa cómo φ genera el ángulo áureo (≈137.50776405003785°) que produce los patrones espirales en la naturaleza.</p>
+            <div class="btn-row">
+                <a href="phi.html" class="btn btn-accent">
+                    <i class="fas fa-sun"></i> Abrir Visualización Interactiva
+                </a>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>© <span id="currentYear"></span> · Recurso Educativo Matemático · φ = 1.6180339887498948482045</p>
+            <p>La proporción áurea en matemáticas, arte, arquitectura y naturaleza.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        const PHI_PRECISE = 1.6180339887498948482045;
+        const GOLDEN_ANGLE = 360 / (PHI_PRECISE * PHI_PRECISE);
+
+        console.log('%cφ = ' + PHI_PRECISE.toFixed(22), 'color:#ffbe0b;font-size:16px;font-weight:bold;');
+        console.log('%cÁngulo Áureo = ' + GOLDEN_ANGLE.toFixed(14) + '°', 'color:#3a86ff;font-weight:bold;');
+        console.log('%cGuía del Símbolo Phi — Inicializada', 'color:#10f9bb;');
+
+        const copyButtons = document.querySelectorAll('.copy-btn');
+        copyButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const textToCopy = document.getElementById(targetId).textContent.trim();
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    const originalHTML = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check"></i> ¡Copiado!';
+                    this.classList.add('copied');
+                    setTimeout(() => {
+                        this.innerHTML = originalHTML;
+                        this.classList.remove('copied');
+                    }, 1800);
+                }).catch(err => {
+                    console.error('Error al copiar:', err);
+                });
+            });
+        });
+
+        const phiSquareInner = document.querySelector('.phi-square-inner');
+        const phiRectContainer = document.querySelector('.phi-rectangle-container');
+        if (phiRectContainer && phiSquareInner) {
+            phiRectContainer.addEventListener('mouseenter', () => {
+                phiSquareInner.style.background = 'rgba(58,134,255,0.35)';
+            });
+            phiRectContainer.addEventListener('mouseleave', () => {
+                phiSquareInner.style.background = 'rgba(58,134,255,0.18)';
+            });
+        }
+    </script>
+</body>
+</html>
