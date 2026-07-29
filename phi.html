@@ -91,7 +91,7 @@
             right: 16px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             z-index: 100;
             pointer-events: none;
             flex-wrap: wrap;
@@ -116,6 +116,8 @@
             align-items: center;
             gap: 7px;
             font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+            align-self: flex-start;
         }
         .nav-back:hover {
             background: rgba(58, 134, 255, 0.18);
@@ -123,22 +125,57 @@
             border-color: var(--azure-blue);
             color: var(--white);
         }
-        .phi-constant-display {
+
+        .phi-info-panel {
             font-family: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             color: var(--amber-gold);
             letter-spacing: 0.03em;
-            background: rgba(13, 10, 26, 0.75);
-            backdrop-filter: blur(8px);
-            padding: 8px 14px;
-            border: 1px solid rgba(255, 190, 11, 0.3);
+            background: rgba(13, 10, 26, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 190, 11, 0.35);
             text-align: right;
-            line-height: 1.4;
+            line-height: 1.55;
+            max-width: 420px;
+            transition: all 0.3s;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         }
-        .phi-constant-display .val {
+        .phi-info-panel .val {
             color: var(--white);
             font-weight: 600;
+            font-size: 0.68rem;
+        }
+        .phi-info-panel .current-val {
+            color: var(--tropical-mint);
+            font-weight: 600;
             font-size: 0.7rem;
+        }
+        .phi-info-panel .angle-val {
+            color: var(--azure-blue);
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+        .phi-info-panel .alert-text {
+            color: var(--blaze-orange);
+            font-weight: 700;
+            font-size: 0.62rem;
+            letter-spacing: 0.06em;
+            margin-top: 4px;
+            display: none;
+            animation: pulse-warning 1.2s infinite;
+        }
+        .phi-info-panel .alert-text.visible {
+            display: block;
+        }
+        @keyframes pulse-warning {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.55;
+            }
         }
 
         .controls {
@@ -274,27 +311,6 @@
             transform: scale(1.08);
         }
 
-        .perf-warning {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: var(--blaze-orange);
-            font-size: 0.7rem;
-            letter-spacing: 0.06em;
-            font-weight: 600;
-            background: rgba(0, 0, 0, 0.85);
-            padding: 10px 18px;
-            border: 1px solid var(--blaze-orange);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s;
-            z-index: 90;
-        }
-        .perf-warning.show {
-            opacity: 1;
-        }
-
         @media (max-width: 768px) {
             .controls {
                 gap: 12px;
@@ -314,10 +330,15 @@
                 top: 8px;
                 left: 8px;
                 right: 8px;
+                flex-direction: column;
+                align-items: flex-start;
             }
-            .phi-constant-display {
+            .phi-info-panel {
                 font-size: 0.55rem;
-                padding: 6px 10px;
+                padding: 10px 14px;
+                max-width: 100%;
+                align-self: stretch;
+                text-align: left;
             }
             .nav-back {
                 font-size: 0.6rem;
@@ -345,6 +366,10 @@
                 font-size: 0.55rem;
                 min-width: 40px;
             }
+            .phi-info-panel {
+                font-size: 0.5rem;
+                padding: 8px 10px;
+            }
         }
     </style>
 </head>
@@ -359,18 +384,19 @@
         <a href="index.html" class="nav-back">
             <i class="fas fa-arrow-left"></i> Guía Phi
         </a>
-        <div class="phi-constant-display">
-            φ = <span class="val">1.6180339887498948482045</span><br>
-            Ángulo Áureo ≈ <span class="val" id="goldenAngleDisplay">137.50776405003785°</span>
+        <div class="phi-info-panel" id="phiInfoPanel">
+            <div>φ = <span class="val">1.6180339887498948482045</span></div>
+            <div>Ángulo Áureo ≈ <span class="val" id="goldenAngleDisplay">137.50776405003785°</span></div>
+            <div>Relación Actual φ ≈ <span class="current-val" id="currentPhiDisplay">1.61803</span></div>
+            <div>Ángulo Actual = <span class="angle-val" id="currentAngleDisplay">137.50776°</span></div>
+            <div class="alert-text" id="perfAlert">⚠ Alto consumo GPU · Reduce nodos</div>
         </div>
     </div>
-
-    <div class="perf-warning" id="perfWarning">⚠ Alto consumo GPU · Reduce el número de nodos</div>
 
     <div class="controls" id="controlPanel">
         <div class="control-group">
             <span class="control-label">Ángulo</span>
-            <input type="range" id="angleSlider" min="1" max="180" step="0.0001" value="137.5078">
+            <input type="range" id="angleSlider" min="0" max="180" step="0.0001" value="137.5078">
             <span class="value-display" id="angleValue">137.5078°</span>
             <button class="ctrl-btn btn-golden" id="goldenAngleBtn" title="Establecer ángulo áureo exacto">φ°</button>
         </div>
@@ -381,8 +407,8 @@
         </div>
         <div class="control-group">
             <span class="control-label">Tamaño</span>
-            <input type="range" id="sizeSlider" min="0.2" max="10" step="0.1" value="2.5">
-            <span class="value-display" id="sizeValue">2.5</span>
+            <input type="range" id="sizeSlider" min="0.1" max="12" step="0.1" value="3">
+            <span class="value-display" id="sizeValue">3</span>
         </div>
         <button class="ctrl-btn btn-color" id="colorToggle" title="Alternar modo de color">Color</button>
         <button class="ctrl-btn btn-reset" id="resetBtn" title="Restablecer valores por defecto">↺ Reset</button>
@@ -394,13 +420,14 @@
             const GOLDEN_ANGLE_EXACT = 360 / (PHI * PHI);
 
             console.log('%c🔬 φ = ' + PHI.toFixed(22), 'color:#ffbe0b;font-size:18px;font-weight:bold;');
-            console.log('%c📐 Ángulo Áureo = ' + GOLDEN_ANGLE_EXACT.toFixed(20) + '°', 'color:#3a86ff;font-weight:bold;');
+            console.log('%c📐 Ángulo Áureo = ' + GOLDEN_ANGLE_EXACT.toFixed(20) + '°',
+                'color:#3a86ff;font-weight:bold;');
             console.log('%c🌻 Visualización de Girasol de Phi — Inicializada', 'color:#10f9bb;font-weight:bold;');
 
             const DEFAULT_CONFIG = {
                 angle: GOLDEN_ANGLE_EXACT,
                 seeds: 500,
-                size: 2.5,
+                size: 3,
                 scale: 7,
                 offsetX: 0,
                 offsetY: 0,
@@ -422,8 +449,10 @@
             const goldenAngleBtn = document.getElementById('goldenAngleBtn');
             const colorToggle = document.getElementById('colorToggle');
             const resetBtn = document.getElementById('resetBtn');
-            const perfWarning = document.getElementById('perfWarning');
             const goldenAngleDisplay = document.getElementById('goldenAngleDisplay');
+            const currentPhiDisplay = document.getElementById('currentPhiDisplay');
+            const currentAngleDisplay = document.getElementById('currentAngleDisplay');
+            const perfAlert = document.getElementById('perfAlert');
 
             let state = {
                 angle: GOLDEN_ANGLE_EXACT,
@@ -442,6 +471,7 @@
                 prevAngle: GOLDEN_ANGLE_EXACT,
                 transitionStartTime: 0,
                 transitionDuration: 600,
+                displayAngle: GOLDEN_ANGLE_EXACT,
             };
 
             let pinchStartDistance = 0;
@@ -457,6 +487,11 @@
             resizeCanvas();
 
             function getSeedColor(i, radius, theta, maxVisibleRadius) {
+                // El primer nodo (i === 0) siempre será blanco puro
+                if (i === 0) {
+                    return 'rgba(255, 255, 255, 1.0)';
+                }
+
                 if (!state.colorMode) {
                     const radialFactor = Math.min(1, radius / (maxVisibleRadius * 0.9));
                     const smoothFactor = 1 - Math.pow(radialFactor, 1.5);
@@ -493,27 +528,35 @@
                 ctx.fillRect(0, 0, w, h);
 
                 const visibleRadius = Math.min(maxRadius, Math.max(w, h) * 0.85);
-                const batchSize = Math.min(600, Math.max(120, Math.floor(state.seedCount / 8)));
 
                 let currentAngle = state.angle;
                 if (state.transitionProgress < 1) {
                     const elapsed = performance.now() - state.transitionStartTime;
                     const rawProgress = Math.min(1, elapsed / state.transitionDuration);
-                    const eased = easeInOutCubic(rawProgress);
+                    const eased = easeInOutQuart(rawProgress);
                     state.transitionProgress = eased;
                     currentAngle = state.prevAngle + (state.targetAngle - state.prevAngle) * eased;
+                    state.displayAngle = currentAngle;
                     if (eased >= 1) {
                         currentAngle = state.targetAngle;
                         state.angle = state.targetAngle;
+                        state.displayAngle = state.targetAngle;
                         state.transitionProgress = 1;
                         angleSlider.value = state.targetAngle.toFixed(4);
                         angleValue.textContent = state.targetAngle.toFixed(4) + '°';
                     }
+                } else {
+                    state.displayAngle = state.angle;
                 }
 
-                for (let batchStart = 0; batchStart < state.seedCount; batchStart += batchSize) {
-                    const batchEnd = Math.min(batchStart + batchSize, state.seedCount);
-                    for (let i = batchStart; i < batchEnd; i++) {
+                updateInfoPanel(currentAngle);
+
+                const batchSize = Math.min(600, Math.max(120, Math.floor(state.seedCount / 8)));
+
+                // Orden Z invertido: primero los externos, al final los internos (centro queda arriba)
+                for (let batchStart = state.seedCount - 1; batchStart >= 0; batchStart -= batchSize) {
+                    const batchEnd = Math.max(batchStart - batchSize + 1, 0);
+                    for (let i = batchStart; i >= batchEnd; i--) {
                         const radius = Math.sqrt(i) * 2 * state.scale;
                         if (radius > visibleRadius) continue;
                         const theta = i * (currentAngle * Math.PI / 180);
@@ -529,7 +572,8 @@
                         ctx.arc(x, y, Math.max(0.15, size), 0, Math.PI * 2);
                         ctx.fill();
 
-                        if (state.colorMode && size > 0.7 && state.seedCount < 8000) {
+                        // Brillo extra solo para nodos no centrales en modo color
+                        if (state.colorMode && i > 0 && size > 0.7 && state.seedCount < 8000) {
                             ctx.fillStyle = 'rgba(255,255,255,0.12)';
                             ctx.beginPath();
                             ctx.arc(x - size * 0.22, y - size * 0.22, size * 0.35, 0, Math.PI * 2);
@@ -538,16 +582,32 @@
                     }
                 }
 
+                // Indicador central solo si el zoom está muy alejado
                 if (state.scale <= MIN_SCALE * 1.6) {
-                    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+                    ctx.fillStyle = 'rgba(255,255,255,0.5)';
                     ctx.beginPath();
-                    ctx.arc(centerX, centerY, 2.5, 0, Math.PI * 2);
+                    ctx.arc(centerX, centerY, 3.2, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
 
-            function easeInOutCubic(t) {
-                return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            function updateInfoPanel(currentAngle) {
+                const phiFromAngle = Math.sqrt(360 / Math.max(0.001, currentAngle));
+                const roundedAngle = currentAngle.toFixed(5);
+                const roundedPhi = phiFromAngle.toFixed(10);
+
+                currentPhiDisplay.textContent = roundedPhi;
+                currentAngleDisplay.textContent = roundedAngle + '°';
+
+                if (state.seedCount >= PERFORMANCE_THRESHOLD) {
+                    perfAlert.classList.add('visible');
+                } else {
+                    perfAlert.classList.remove('visible');
+                }
+            }
+
+            function easeInOutQuart(t) {
+                return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
             }
 
             function animateLoop() {
@@ -557,7 +617,7 @@
                 state.animationId = requestAnimationFrame(animateLoop);
             }
 
-            function smoothTransitionToAngle(targetAngle, duration = 600) {
+            function smoothTransitionToAngle(targetAngle, duration = 2200) {
                 state.prevAngle = state.angle;
                 state.targetAngle = targetAngle;
                 state.transitionProgress = 0;
@@ -570,9 +630,10 @@
                 const newAngle = parseFloat(angleSlider.value);
                 angleValue.textContent = newAngle.toFixed(4) + '°';
                 if (animate && Math.abs(newAngle - state.angle) > 0.001) {
-                    smoothTransitionToAngle(newAngle);
+                    smoothTransitionToAngle(newAngle, 800);
                 } else {
                     state.angle = newAngle;
+                    state.displayAngle = newAngle;
                     state.transitionProgress = 1;
                     draw();
                 }
@@ -599,9 +660,9 @@
 
             function updatePerfWarning() {
                 if (state.seedCount >= PERFORMANCE_THRESHOLD) {
-                    perfWarning.classList.add('show');
+                    perfAlert.classList.add('visible');
                 } else {
-                    perfWarning.classList.remove('show');
+                    perfAlert.classList.remove('visible');
                 }
             }
 
@@ -616,7 +677,7 @@
             function setGoldenAngle() {
                 angleSlider.value = GOLDEN_ANGLE_EXACT.toFixed(4);
                 angleValue.textContent = GOLDEN_ANGLE_EXACT.toFixed(4) + '°';
-                smoothTransitionToAngle(GOLDEN_ANGLE_EXACT, 700);
+                smoothTransitionToAngle(GOLDEN_ANGLE_EXACT, 2400);
 
                 goldenAngleBtn.classList.add('active-flash');
                 goldenAngleBtn.textContent = '✓';
@@ -651,7 +712,7 @@
                 angleValue.textContent = DEFAULT_CONFIG.angle.toFixed(4) + '°';
                 updatePerfWarning();
 
-                smoothTransitionToAngle(DEFAULT_CONFIG.angle, 700);
+                smoothTransitionToAngle(DEFAULT_CONFIG.angle, 2000);
 
                 resetBtn.classList.add('active-flash');
                 setTimeout(() => resetBtn.classList.remove('active-flash'), 700);
@@ -763,7 +824,7 @@
                         if (e.shiftKey) delta *= 10;
                         if (e.ctrlKey || e.metaKey) delta *= 100;
                         let newVal = parseFloat(angleSlider.value) + delta;
-                        newVal = Math.max(1, Math.min(180, parseFloat(newVal.toFixed(4))));
+                        newVal = Math.max(0.1, Math.min(179.9999, parseFloat(newVal.toFixed(4))));
                         angleSlider.value = newVal;
                         updateAngle(true);
                         break;
@@ -834,10 +895,12 @@
             seedsValue.textContent = state.seedCount;
             sizeValue.textContent = state.sizeMultiplier.toFixed(1);
             updatePerfWarning();
+            updateInfoPanel(GOLDEN_ANGLE_EXACT);
             draw();
             state.animationId = requestAnimationFrame(animateLoop);
 
-            console.log('%c✅ Visualización lista · Usa G=Ángulo Áureo, R=Reset, C=Color, Flechas=Navegar',
+            console.log(
+                '%c✅ Visualización lista · Centro blanco puro · Animación ease-in-out mejorada (2.2s) · Reset con animación',
                 'color:#10f9bb;');
         })();
     </script>
